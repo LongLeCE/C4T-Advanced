@@ -3,20 +3,23 @@
 
 class Queue:
 
-    def __init__(self, capacity=1):
+    def __init__(self, capacity=-1):
         self.capacity = capacity
         self.items = []
 
-    def insert(self, x):
+    def insert(self, x, is_list=False):
         if not self.is_full():
-            self.items.insert(0, x)
+            self.items.insert(0, x) if not is_list else (self.items.insert(0, i) for i in x if not self.is_full())
             return True
         return False
 
-    def remove(self):
-        if not self.is_empty():
-            return self.items.pop()
+    def remove(self, how_many=1):
+        if not self.is_empty() and how_many:
+            return self.items.pop() if how_many == 1 else [self.items.pop() for _ in range(how_many) if not self.is_empty()]
         return None
+
+    def remove_all(self):
+        return self.remove(self.size())
 
     def clear(self):
         self.items = []
