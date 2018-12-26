@@ -13,20 +13,26 @@ class QueueSimulation:
         results = []
         loss_req = 0
         loss_1 = self.queue.size() - self.process_rate
-        try:
-            results += self.queue.remove(self.process_rate)
-        except TypeError:
-            pass
         if loss_1 < 0:
             loss_2 = len(reqs) + loss_1
-            results += reqs[0: -loss_1] if loss_2 > 0 else reqs
-            for j in range(loss_2):
-                self.queue.insert(reqs[j - loss_1])
             if loss_2 > 0:
+                for _ in range(self.queue.size()):
+                    results += self.queue.remove()
+                results += reqs[0: -loss_1]
+                self.queue.clear()
+                for j in range(loss_2):
+                    self.queue.insert(reqs[j - loss_1])
                 loss_req += loss_2 - self.queue.size()
+            else:
+                for _ in range(self.queue.size()):
+                    results += self.queue.remove()
+                results += reqs
         else:
+            for _ in range(self.process_rate):
+                results.append(self.queue.remove())
             temp_size = self.queue.size()
-            self.queue.insert(reqs, is_list=True)
+            for k in range(len(reqs)):
+                self.queue.insert(reqs[k])
             loss_req += len(reqs) - self.queue.size() + temp_size
         return results, loss_req
 
@@ -34,5 +40,7 @@ class QueueSimulation:
         self.queue.clear()
         loss_req = 0
         for _ in range(iterations):
-            loss_req += self.step(list(" " * np.random.randint(self.min_req_rate, self.max_req_rate + 1)))[1]
+            reqs = list(" " * np.random.randint(self.min_req_rate, self.max_req_rate + 1))
+            loss_req += self.step(reqs)[1]
         return (loss_req + self.queue.size()) / iterations
+    
