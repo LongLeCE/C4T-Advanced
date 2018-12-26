@@ -9,7 +9,14 @@ class Queue:
 
     def insert(self, x, is_list=False):
         if not self.is_full():
-            self.items.insert(0, x) if not is_list else (self.items.insert(0, i) for i in x if not self.is_full())
+            if not is_list:
+                self.items.insert(0, x)
+            else:
+                for i in x:
+                    if not self.is_full():
+                        self.items.insert(0, i)
+                    else:
+                        break
             return True
         return False
 
